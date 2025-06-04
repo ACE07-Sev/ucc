@@ -1,8 +1,9 @@
 import numpy as np
 from numpy.typing import NDArray
 import quimb.tensor as qtn # type: ignore
-
 from qiskit import QuantumCircuit # type: ignore
+from qiskit.quantum_info import partial_trace, entropy
+from typing import Literal
 
 
 def gram_schmidt(matrix: NDArray[np.complex128]) -> NDArray[np.complex128]:
@@ -54,8 +55,44 @@ def gram_schmidt(matrix: NDArray[np.complex128]) -> NDArray[np.complex128]:
     return unitary
 
 
+def entanglement_type(state: NDArray[np.complex128]) -> Literal["area", "volume"]:
+    """Check the entanglement type of a quantum state.
+
+    Args:
+        state (NDArray[np.complex128]): The quantum state represented as a statevector.
+
+    Returns:
+        entanglement_type (str): The entanglement type of the state.
+    """
+    n = int(np.ceil(np.log2(len(state))))
+
+    entropies = []
+    for k in range(1, n//2 + 1):
+        # Trace out rest of the qubits
+        rho_A = partial_trace(state, list(range(k, n)))
+        S = entropy(rho_A, base=2)
+        entropies.append(S)
+
+    # Check if the entropies form a straight line or a curve
+    entropies = np.array(entropies[len(entropies) // 2:])
+    x = np.arange(1, len(entropies) + 1)
+
+    # Linear regression: fit y = ax + b
+    x_mean = np.mean(x)
+    y_mean = np.mean(entropies)
+
+    numerator = np.sum((x - x_mean) * (entropies - y_mean))
+    denominator = np.sum((x - x_mean)**2)
+
+    slope = numerator / denominator if denominator != 0 else 0
+
+    if np.isclose(slope, 1, atol=0.1):
+        return "volume"
+    return "area"
+
+
 class Sequential:
-    def __init__(self, target_fidelity) -> None:
+    def __init__(self, target_fidelity: float) -> None:
         """Initialize the Sequential class.
 
         Args:

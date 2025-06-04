@@ -1,1 +1,1 @@
-from .mps_sequential import Sequential
+from .mps_sequential import Sequential, entanglement_type

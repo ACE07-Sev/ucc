@@ -1,8 +1,11 @@
+import numpy as np
 from qbraid.programs.alias_manager import get_program_type_alias
 from qbraid.transpiler import ConversionGraph
 from qbraid.transpiler import transpile as translate
+from .aqc import Sequential, entanglement_type
 from .transpilers.ucc_defaults import UCCDefault1
 from qiskit import transpile as qiskit_transpile
+from qiskit.quantum_info import Statevector
 
 import sys
 import warnings
@@ -31,6 +34,7 @@ def compile(
     target_gateset=None,
     target_device=None,
     custom_passes=None,
+    aqc=False,
 ):
     """Compiles the provided quantum `circuit` by translating it to a Qiskit
     circuit, transpiling it, and returning the optimized circuit in the
@@ -47,6 +51,8 @@ def compile(
             basis gates of the input circuit are not changed.
         target_device (qiskit.transpiler.Target): (optional) The target device to compile the circuit for. None if no device to target
         custom_passes (list[qiskit.transpiler.TransformationPass]): (optional) A list of custom passes to apply after the default set
+            of passes. Defaults to None.
+        aqc (bool): (optional) If True, uses the AQC compilation strategy. Defaults to False.
 
     Returns:
         object: The compiled circuit in the specified format.
@@ -56,6 +62,37 @@ def compile(
 
     # Translate to Qiskit Circuit object
     qiskit_circuit = translate(circuit, "qiskit")
+
+    if aqc:
+        original_circuit = qiskit_circuit
+        sequential = Sequential(target_fidelity=0.99)
+        target_sv = Statevector(qiskit_circuit).data
+        entanglement = entanglement_type(target_sv)
+
+        if entanglement == "area":
+            num_layers = 2 * qiskit_circuit.num_qubits
+        else:
+            num_layers = 4 * qiskit_circuit.num_qubits
+            warnings.warn(
+                "Warning: The circuit is volume-law entangled. Compression may be too lossy."
+            )
+
+        qiskit_circuit = sequential(
+            target_sv,
+            num_layers,
+            2**qiskit_circuit.num_qubits,
+        )
+        fidelity = np.vdot(target_sv, Statevector(qiskit_circuit).data)
+        if fidelity < 0.9:
+            warnings.warn(
+                f"Warning: The fidelity is lower than reliable threshold: {fidelity:.2f}. "
+            )
+        if fidelity < 0.7:
+            warnings.warn(
+                f"Warning: Fidelity {fidelity:.2f} is too low. Discarding compression."
+            )
+            qiskit_circuit = original_circuit
+
     ucc_default1 = UCCDefault1(target_device=target_device)
     if custom_passes is not None:
         ucc_default1.pass_manager.append(custom_passes)
