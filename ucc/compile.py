@@ -42,7 +42,9 @@ def compile(
             e.g., "TKET", "OpenQASM2". Check ``ucc.supported_circuit_formats``.
             Defaults to the format of the input circuit.
         target_gateset (set[str]): (optional) The gateset to compile the circuit to.
-            e.g. {"cx", "rx",...}. Defaults to the gateset of the target device, or if none is provided, {"cx", "rz", "rx", "ry", "h"}.
+            e.g. {"cx", "rx",...}. Defaults to the gate set of the target device if
+            available. If no `target_gateset` or ` target_device` is provided, the
+            basis gates of the input circuit are not changed.
         target_device (qiskit.transpiler.Target): (optional) The target device to compile the circuit for. None if no device to target
         custom_passes (list[qiskit.transpiler.TransformationPass]): (optional) A list of custom passes to apply after the default set
 

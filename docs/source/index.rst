@@ -13,6 +13,7 @@ Welcome to the docs!
    :maxdepth: 1
    :caption: Contents:
 
+   Changelog <changelog.rst>
    User Guide <user_guide.rst>
    Contributing Guide <contributing.rst>
    Benchmarking <benchmarking.rst>

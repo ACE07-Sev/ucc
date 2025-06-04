@@ -9,10 +9,18 @@
 # so it could trigger the workflow. See
 # https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/automating-projects-using-actions
 # for details.
+#
+# NOTE - This uses the `pull_request_target` event, which runs in the context of the base branch rather than the PR branch.
+# This means we can run on PRs initiated from forks. It's best practice to *not* run or checkout any code from the fork
+# however, as it might contain malicious code. So this job only kicks off the ucc-bench workflow.
+
+# We also use `github.event.pull_request.merge_commit_sha` as the commit to run the benchmarks on. This is a temporary
+# merge commit created by GitHub when the PR is opened, and it represents what the code would look like if the PR were merged.
+
 
 name: Trigger ucc PR workflow in ucc-bench
 on:
-    pull_request:
+    pull_request_target:
       branches:
         - main
       types:
@@ -23,7 +31,7 @@ on:
 jobs:
   trigger-benchmarks-pr:
     runs-on: ubuntu-latest
-    # Don't run on forks or original benchmark commits
+    # Only run if label is present
     if: contains(github.event.pull_request.labels.*.name, 'preview-benchmark-results')
 
     steps:
@@ -47,5 +55,5 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             /repos/unitaryfoundation/ucc-bench/dispatches \
-            -f "event_type=ucc-main-pr" -F "client_payload[commit_hash]=${{ github.sha }}"\
+            -f "event_type=ucc-main-pr" -F "client_payload[commit_hash]="${{ github.event.pull_request.merge_commit_sha }}""\
             -F "client_payload[pr_number]=${{ github.event.pull_request.number }}"

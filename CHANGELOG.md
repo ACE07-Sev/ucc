@@ -1,6 +1,7 @@
 # Changelog
 
 ## [0.4.6] - 2025-04-16
+[PyPI](https://pypi.org/project/ucc/0.4.6/) | [GitHub](https://github.com/unitaryfoundation/ucc/releases/tag/v0.4.6)
 
 In version 0.4.6, we refactored the UCC benchmarking workflows and migrated them to a
 standalone repository [ucc-bench](https://github.com/unitaryfoundation/ucc-bench). We updated the corresponding [documention](https://ucc.readthedocs.io/en/latest/benchmarking.html), adding details on the benchmarked circuits and compiler configurations. As part of this migration, benchmarks can be run on pending PRs to understand the performance implications of a change before merging. The results are posted as comments to the PR (see [here](https://github.com/unitaryfoundation/ucc/pull/359#issuecomment-2876701484) for an example). Going forward, changes related to benchmarking infrastructure will be primarily tracked in the [ucc-bench](https://github.com/unitaryfoundation/ucc-bench) repository.
@@ -28,6 +29,7 @@ We also migrated to [uv](https://docs.astral.sh/uv/) for package management, and
 * Bump pytket from 2.3.1 to 2.4.1 by @dependabot in https://github.com/unitaryfoundation/ucc/pull/359
 
 ## [0.4.5] - 2025-04-15
+[PyPI](https://pypi.org/project/ucc/0.4.5/) | [GitHub](https://github.com/unitaryfoundation/ucc/releases/tag/v0.4.5)
 
 In version 0.4.5, we enabled plotting of relative errors on the simulated benchmarks and continued refinement of the expectation value benchmarking flow,
 including the addition of a custom observable for QCNN circuits and adjustments in the applied gate error rates to reflect capabilities of current devices.
@@ -62,6 +64,7 @@ Thanks to our first external contributor @Shivansh20128 for improving UCC code a
 
 
 ## [0.4.4] - 2025-03-13
+[PyPI](https://pypi.org/project/ucc/0.4.4/) | [GitHub](https://github.com/unitaryfoundation/ucc/releases/tag/v0.4.4)
 
 In version 0.4.4, we updated and expanded our documentation and streamlined benchmark data visualization. We also implemented more custom observables for our expectation value benchmarks, improved the user experience for adding custom transpiler passes, and switched to using the `FullPeepHoleOptimize` function to benchmark PyTKET based on feedback from the community!
 
@@ -92,6 +95,7 @@ In version 0.4.4, we updated and expanded our documentation and streamlined benc
 - Remove specific dated data from plots. #283 [@jordandsullivan]
 
 ## [0.4.3] - 2025-02-26
+[PyPI](https://pypi.org/project/ucc/0.4.3/) | [GitHub](https://github.com/unitaryfoundation/ucc/releases/tag/v0.4.3)
 
 In version 0.4.3, we enhanced UCC infrastructure, benchmarking, and documentation.
 Release highlights include the introduction of
@@ -147,6 +151,7 @@ ZZZZZZZZZZZ observable to the heavy output probability.
 
 
 ## [0.4.2] - 2025-01-17
+[PyPI](https://pypi.org/project/ucc/0.4.2/) | [GitHub](https://github.com/unitaryfoundation/ucc/releases/tag/v0.4.2)
 
 Version 0.4.2 marks the first formal release to [PyPI](https://pypi.org/project/ucc/) of the Unitary Compiler Collection (UCC), a Python library for frontend-agnostic, high performance compilation of quantum circuits.
 

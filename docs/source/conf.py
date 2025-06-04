@@ -23,6 +23,10 @@ extensions = [
     "myst_parser",
     "sphinx.ext.doctest",
 ]
+
+myst_enable_extensions = [
+    "linkify",
+]
 # Suppress warnings related to heading levels
 suppress_warnings = ["myst.header"]
 
