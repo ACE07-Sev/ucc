@@ -6,6 +6,7 @@ from .aqc import Sequential, entanglement_type
 from .transpilers.ucc_defaults import UCCDefault1
 from qiskit import transpile as qiskit_transpile
 from qiskit.quantum_info import Statevector
+import importlib.util
 
 import sys
 import warnings
@@ -26,6 +27,11 @@ if current_major != REQUIRED_MAJOR or not (
         f"You are using Python) {current_major}.{current_minor}."
     )
 supported_circuit_formats = ConversionGraph().nodes()
+
+# Check if `qmprs` is installed for AQC compilation
+qmprs_available = importlib.util.find_spec("qmprs") is not None
+if qmprs_available:
+    from .aqc import QmprsCompiler
 
 
 def compile(
@@ -65,29 +71,45 @@ def compile(
 
     if aqc:
         original_circuit = qiskit_circuit
-        sequential = Sequential(target_fidelity=0.99)
-        target_sv = Statevector(qiskit_circuit).data
-        entanglement = entanglement_type(target_sv)
 
-        if entanglement == "area":
-            num_layers = 2 * qiskit_circuit.num_qubits
-        else:
-            num_layers = 4 * qiskit_circuit.num_qubits
+        target_sv = Statevector(qiskit_circuit).data
+
+        if not qmprs_available:
             warnings.warn(
-                "Warning: The circuit is volume-law entangled. Compression may be too lossy."
+                "Warning: AQC compilation is requested, but `qmprs` is not installed. "
+                "Falling back to vanilla sequential encoding."
+            )
+            sequential = Sequential(target_fidelity=0.99)
+            entanglement = entanglement_type(target_sv)
+
+            if entanglement == "area":
+                num_layers = 2 * qiskit_circuit.num_qubits
+            else:
+                num_layers = 4 * qiskit_circuit.num_qubits
+                warnings.warn(
+                    "Warning: The circuit is volume-law entangled. Compression may be too lossy."
+                )
+
+            qiskit_circuit = sequential(
+                target_sv,
+                num_layers,
+                2**qiskit_circuit.num_qubits,
             )
 
-        qiskit_circuit = sequential(
-            target_sv,
-            num_layers,
-            2**qiskit_circuit.num_qubits,
-        )
+        else:
+            sequential = QmprsCompiler()
+            qiskit_circuit = sequential(target_sv)
+
         fidelity = np.vdot(target_sv, Statevector(qiskit_circuit).data)
         if fidelity < 0.9:
             warnings.warn(
                 f"Warning: The fidelity is lower than reliable threshold: {fidelity:.2f}. "
             )
-        if fidelity < 0.7:
+
+        # Fallback protocol for low fidelity
+        # NOTE: This should be modified by maintainer depending on the use case
+        # and whether qml pipeline is used to compensate for the infidelity
+        if fidelity < 0.8:
             warnings.warn(
                 f"Warning: Fidelity {fidelity:.2f} is too low. Discarding compression."
             )

@@ -287,7 +287,7 @@ class Sequential:
             chi_max: int,
             verbose: bool = False
         ) -> QuantumCircuit:
-        """Call the instance to generate a circuit from the MPS.
+        """Call the instance to create the circuit that encodes the statevector.
 
         Args:
             statevector (NDArray[np.complex128]): The statevector to convert.
