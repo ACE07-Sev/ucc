@@ -14,15 +14,15 @@ class QmprsCompiler:
     For more information, see:
     https://github.com/Qualition/qmprs
     """
-    def __init__(self, target_fidelity=0.99) -> None:
+    def __init__(self, max_fidelity_threshold=0.9) -> None:
         """Initialize the QmprsCompiler with a target fidelity.
 
         Args:
-            target_fidelity (float): The target fidelity for the MPS encoding.
-            Defaults to 0.99.
+            max_fidelity_threshold (float): The maximum fidelity required, after
+            which we can stop the encoding to save depth. Defaults to 0.9.
         """
         self.sequential = QmprsSequential(QiskitCircuit)
-        self.sequential.fidelity_threshold = target_fidelity
+        self.sequential.fidelity_threshold = max_fidelity_threshold
 
     @staticmethod
     def calculate_entanglement_entropy_slope(state: NDArray[np.complex128]) ->  float:
@@ -78,7 +78,7 @@ class QmprsCompiler:
         # Entanglement entropy slope is between 0 and 1
         # Use a smooth transition between area-law (0 to 0.5) and volume-law (1)
         # The higher the slope, the more layers and sweeps are needed
-        num_layers = int((2 + 2 * slope) * num_qubits / 1.5)
+        num_layers = int((2 + 1 * slope) * num_qubits)
         num_sweeps = int((10 + 20 * slope) * num_qubits)
 
         return num_layers, num_sweeps

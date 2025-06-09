@@ -92,13 +92,14 @@ def entanglement_type(state: NDArray[np.complex128]) -> Literal["area", "volume"
 
 
 class Sequential:
-    def __init__(self, target_fidelity: float) -> None:
+    def __init__(self, max_fidelity_threshold: float=0.95) -> None:
         """Initialize the Sequential class.
 
         Args:
-            target_fidelity (float): The target fidelity for the MPS encoding.
+            max_fidelity_threshold (float): The maximum fidelity required, after
+            which we can stop the encoding to save depth. Defaults to 0.95.
         """
-        self.target_fidelity = target_fidelity
+        self.max_fidelity_threshold = max_fidelity_threshold
 
     def generate_layer(self, mps: qtn.MatrixProductState) -> list[tuple[list[int], NDArray[np.complex128]]]:
         """ Convert a Matrix Product State (MPS) to a circuit representation
@@ -249,7 +250,7 @@ class Sequential:
                 disentangled_mps.to_dense(), zero_state
             )
 
-            if fidelity >= self.target_fidelity:
+            if fidelity >= self.max_fidelity_threshold:
                 # If the disentangled MPS is close enough to the zero state,
                 # we can stop the disentanglement process
                 if verbose:
