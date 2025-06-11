@@ -1,9 +1,9 @@
 import numpy as np
 from numpy.typing import NDArray
-from qmprs.synthesis.mps_encoding import Sequential as QmprsSequential
+from qmprs.synthesis.mps_encoding import Sequential as QmprsSequential # type: ignore
 from quick.circuit import QiskitCircuit
 from qiskit import QuantumCircuit
-from qiskit.quantum_info import partial_trace, entropy
+from .utils import calculate_entanglement_entropy_slope
 import warnings
 
 
@@ -25,46 +25,12 @@ class QmprsCompiler:
         self.sequential.fidelity_threshold = max_fidelity_threshold
 
     @staticmethod
-    def calculate_entanglement_entropy_slope(state: NDArray[np.complex128]) ->  float:
-        """Calculate the slope of the entanglement entropy as the
-        subsystem size increases, which can indicate whether the
-        entanglement is volume-law or area-law. This returns a float
-        as opposed to a string to provide a more dynamic response.
-
-        Args:
-            state (NDArray[np.complex128]): The quantum state represented as a statevector.
-
-        Returns:
-            float: The entanglement entropy of the state.
-        """
-        n = int(np.ceil(np.log2(len(state))))
-
-        entropies = []
-        for k in range(1, n//2 + 1):
-            # Trace out rest of the qubits
-            rho_A = partial_trace(state, list(range(k, n)))
-            S = entropy(rho_A, base=2)
-            entropies.append(S)
-
-        # Check if the entropies form a straight line or a curve
-        entropies = np.array(entropies[len(entropies) // 2:])
-        x = np.arange(1, len(entropies) + 1)
-
-        # Linear regression: fit y = ax + b
-        x_mean = np.mean(x)
-        y_mean = np.mean(entropies)
-
-        numerator = np.sum((x - x_mean) * (entropies - y_mean))
-        denominator = np.sum((x - x_mean)**2)
-
-        slope = numerator / denominator if denominator != 0 else 0
-
-        return slope
-
-    @staticmethod
     def optimal_params(statevector: NDArray[np.complex128]) -> tuple[int, int]:
         """Calculate the optimal number of layers and sweeps for the
         MPS encoding.
+
+        Users should overwrite this static method to customize the definition
+        of the number of layers and number of sweeps for their use-case.
 
         Args:
             statevector (NDArray[np.complex128]): The statevector to analyze.
@@ -73,10 +39,10 @@ class QmprsCompiler:
             tuple[int, int]: A tuple containing the number of layers and sweeps.
         """
         num_qubits = int(np.ceil(np.log2(len(statevector))))
-        slope = QmprsCompiler.calculate_entanglement_entropy_slope(statevector)
+        slope = calculate_entanglement_entropy_slope(statevector)
 
         # Entanglement entropy slope is between 0 and 1
-        # Use a smooth transition between area-law (0 to 0.5) and volume-law (1)
+        # Use a smooth transition between area-law (0 to 0.4) and volume-law (1)
         # The higher the slope, the more layers and sweeps are needed
         num_layers = int((2 + 1 * slope) * num_qubits)
         num_sweeps = int((10 + 20 * slope) * num_qubits)
@@ -97,7 +63,21 @@ class QmprsCompiler:
         Returns:
             QuantumCircuit: The generated quantum circuit.
         """
+        slope = calculate_entanglement_entropy_slope(statevector)
+        if np.isclose(slope, 1, atol=0.1):
+            warnings.warn(
+                "Warning: The state is volume-law entangled. Compression may be too lossy."
+            )
+
         num_qubits = int(np.ceil(np.log2(len(statevector))))
+
+        # Single qubit statevector is optimal, and cannot be
+        # further improved given depth of 1
+        if num_qubits == 1:
+            circuit = QuantumCircuit(1)
+            circuit.initialize(statevector, [0])
+            return circuit
+
         num_layers, num_sweeps = self.optimal_params(statevector)
 
         circuit = self.sequential.prepare_state(
@@ -107,15 +87,8 @@ class QmprsCompiler:
             num_sweeps=num_sweeps
         )
 
-        fidelity = np.vdot(circuit.get_statevector(), statevector)
-
         if verbose:
-            slope = self.calculate_entanglement_entropy_slope(statevector)
-            if np.isclose(slope, 1, atol=0.1):
-                warnings.warn(
-                    "Warning: The state is volume-law entangled. Compression may be too lossy."
-                )
-
+            fidelity = np.vdot(circuit.get_statevector(), statevector)
             print(
                 f"Fidelity: {fidelity:.4f}, "
                 f"Number of qubits: {num_qubits}, "

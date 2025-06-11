@@ -2,14 +2,15 @@ import numpy as np
 from qbraid.programs.alias_manager import get_program_type_alias
 from qbraid.transpiler import ConversionGraph
 from qbraid.transpiler import transpile as translate
-from .aqc import Sequential, entanglement_type
+from .aqc import MPS_Encoder
 from .transpilers.ucc_defaults import UCCDefault1
 from qiskit import transpile as qiskit_transpile
 from qiskit.quantum_info import Statevector
-import importlib.util
 
 import sys
 import warnings
+import psutil
+import importlib
 
 # Specify the supported Python version range
 REQUIRED_MAJOR = 3
@@ -30,9 +31,100 @@ supported_circuit_formats = ConversionGraph().nodes()
 
 # Check if `qmprs` is installed for AQC compilation
 qmprs_available = importlib.util.find_spec("qmprs") is not None
-if qmprs_available:
-    from .aqc import QmprsCompiler
 
+
+def has_enough_memory(num_qubits: int) -> tuple[bool, float, float]:
+    """Check if the available user RAM is enough to represent
+    the statevector IR.
+
+    Args:
+        num_qubits (int): The number of qubits for the statevector.
+
+    Returns:
+        has_memory (bool): Whether the user has enough RAM.
+        memory_required_gb (float): Amount of memory required to
+            store the statevector IR in GB.
+        available_memory_gb (float): Amount of free memory that
+            can be dedicated to storing the statevector IR in GB.
+    """
+    available_memory_gb = psutil.virtual_memory().available
+    available_memory_gb = available_memory_gb / 2**30
+
+    # Calculate approximately how much memory the statevector
+    # requires at worst-case (volume-law)
+    # statevectors use np.complex128 which needs 16 bytes
+    # Use half of the memory available to store the IR
+    memory_required_gb = 2**(4 + num_qubits - 31)
+    has_memory = memory_required_gb <= available_memory_gb
+
+    return has_memory, memory_required_gb, available_memory_gb
+
+
+def approx_compile(circuit):
+    """Compiles the qiskit circuit provided to approximately compile,
+    and if the circuit state requires more memory than is available or
+    the fidelity of aqc is lower than required it will return the original
+    circuit.
+
+    Args:
+        qiskit_circuit (QuantumCircuit): The circuit to approximately compile.
+
+    Returns:
+        QuantumCircuit: The compiled or unchanged circuit.
+    """
+    if not qmprs_available:
+        warnings.warn(
+            "Warning: AQC compilation is requested, but `qmprs` is not installed. "
+            "Falling back to vanilla sequential encoding."
+        )
+
+    if circuit.num_qubits == 1:
+        return circuit
+
+    # If the circuit's statevector IR requires more RAM than the user has,
+    # ignore the compilation and return the inputted circuit as is
+    has_memory, required_memory, available_memory = has_enough_memory(
+        circuit.num_qubits
+    )
+    if not has_memory:
+        warnings.warn(
+            "Required memory to store statevector IR is more than available memory. \n"
+            f"Required_memory: {required_memory} GB \n"
+            f"Available memory to allocate to storing statevector IR: {available_memory} GB \n\n"
+        )
+        return circuit
+
+    target_sv = Statevector(circuit).data
+    aqc_circuit = MPS_Encoder()(target_sv)
+
+    # Fallback protocol for low fidelity, which discards the compiled
+    # circuit and returns the original one
+    # TODO: This should be modified depending on maintainer notes
+    fidelity = np.vdot(target_sv, Statevector(aqc_circuit).data)
+    if fidelity < 0.8:
+        warnings.warn(
+            f"Warning: Fidelity {fidelity:.4f} is too low. Discarding compression."
+        )
+        return circuit
+
+    # If the compiled circuit is deeper and has more cx than permitted, discard
+    # the compilation
+    aqc_transpiled = qiskit_transpile(aqc_circuit, basis_gates=["u3", "cx"], optimization_level=3)
+    original_transpiled = qiskit_transpile(circuit, basis_gates=["u3", "cx"], optimization_level=3)
+
+    aqc_cx_count = aqc_transpiled.count_ops().get("cx", 0)
+    aqc_depth = aqc_transpiled.depth()
+
+    original_cx_count = original_transpiled.count_ops().get("cx", 0)
+    original_depth = original_transpiled.depth()
+
+    # Fallback protocol for worse depth and cx counts, which discards
+    # the compiled circuit and returns the original one
+    # TODO: This should be modified depending on maintainer notes
+    if (aqc_cx_count >= original_cx_count) and (aqc_depth >= original_depth):
+        return circuit
+
+    return aqc_circuit
 
 def compile(
     circuit,
@@ -69,58 +161,16 @@ def compile(
     # Translate to Qiskit Circuit object
     qiskit_circuit = translate(circuit, "qiskit")
 
+    # Utilize approximate quantum compilation via MPS encoding
+    # This is useful for area-law entangled circuits which can
+    # be significantly compressed without losing much fidelity
     if aqc:
-        original_circuit = qiskit_circuit
-
-        target_sv = Statevector(qiskit_circuit).data
-
-        if not qmprs_available:
-            warnings.warn(
-                "Warning: AQC compilation is requested, but `qmprs` is not installed. "
-                "Falling back to vanilla sequential encoding."
-            )
-            sequential = Sequential(target_fidelity=0.99)
-            entanglement = entanglement_type(target_sv)
-
-            if entanglement == "area":
-                num_layers = 2 * qiskit_circuit.num_qubits
-            else:
-                num_layers = 4 * qiskit_circuit.num_qubits
-                warnings.warn(
-                    "Warning: The circuit is volume-law entangled. Compression may be too lossy."
-                )
-
-            qiskit_circuit = sequential(
-                target_sv,
-                num_layers,
-                2**qiskit_circuit.num_qubits,
-            )
-
-        else:
-            sequential = QmprsCompiler()
-            qiskit_circuit = sequential(target_sv)
-
-        fidelity = np.vdot(target_sv, Statevector(qiskit_circuit).data)
-        if fidelity < 0.9:
-            warnings.warn(
-                f"Warning: The fidelity is lower than reliable threshold: {fidelity:.2f}. "
-            )
-
-        # Fallback protocol for low fidelity
-        # NOTE: This should be modified by maintainer depending on the use case
-        # and whether qml pipeline is used to compensate for the infidelity
-        if fidelity < 0.8:
-            warnings.warn(
-                f"Warning: Fidelity {fidelity:.2f} is too low. Discarding compression."
-            )
-            qiskit_circuit = original_circuit
+        qiskit_circuit = approx_compile(qiskit_circuit)
 
     ucc_default1 = UCCDefault1(target_device=target_device)
     if custom_passes is not None:
         ucc_default1.pass_manager.append(custom_passes)
-    compiled_circuit = ucc_default1.run(
-        qiskit_circuit,
-    )
+    compiled_circuit = ucc_default1.run(qiskit_circuit)
 
     if target_gateset is not None:
         # Translate into user-defined gateset; no optimization
