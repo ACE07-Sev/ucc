@@ -5,6 +5,9 @@ from qiskit import QuantumCircuit  # type: ignore
 from qiskit.quantum_info import Statevector  # type: ignore
 from .utils import calculate_entanglement_entropy_slope
 import warnings
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def gram_schmidt(matrix: NDArray[np.complex128]) -> NDArray[np.complex128]:
@@ -250,6 +253,7 @@ class Sequential:
 
         return circuit
 
+    @staticmethod
     def optimal_params(statevector: NDArray[np.complex128]) -> int:
         """Calculate the optimal number of layers and sweeps for the
         MPS encoding.
@@ -276,18 +280,12 @@ class Sequential:
     def __call__(
         self,
         statevector: NDArray[np.complex128],
-        max_num_layers: int,
-        chi_max: int,
-        automatic_params: bool = True,
         verbose: bool = False,
     ) -> QuantumCircuit:
         """Call the instance to create the circuit that encodes the statevector.
 
         Args:
             statevector (NDArray[np.complex128]): The statevector to convert.
-            max_num_layers (int): The number of layers to use in the circuit.
-            chi_max (int): The maximum bond dimension for the MPS compression.
-            automatic_params (bool): If True, find the optimal params automatically.
             verbose (bool): If True, print additional information during the process.
 
         Returns:
@@ -308,19 +306,18 @@ class Sequential:
                 "Warning: The state is volume-law entangled. Compression may be too lossy."
             )
 
-        if automatic_params:
-            max_num_layers = self.optimal_params(statevector)
+        max_num_layers = self.optimal_params(statevector)
 
         circuit = self.mps_to_circuit_approx(
-            statevector, max_num_layers, chi_max, verbose=verbose
+            statevector, max_num_layers, 2**num_qubits, verbose=verbose
         )
 
         if verbose:
             fidelity = np.vdot(Statevector(circuit).data, statevector)
-            print(
+            logger.info(
                 f"Fidelity: {fidelity:.4f}, "
                 f"Number of qubits: {num_qubits}, "
                 f"Number of layers: {max_num_layers}, "
             )
 
-        return circuit.circuit
+        return circuit

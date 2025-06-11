@@ -5,6 +5,9 @@ from quick.circuit import QiskitCircuit
 from qiskit import QuantumCircuit
 from .utils import calculate_entanglement_entropy_slope
 import warnings
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class QmprsCompiler:
@@ -88,7 +91,7 @@ class QmprsCompiler:
 
         if verbose:
             fidelity = np.vdot(circuit.get_statevector(), statevector)
-            print(
+            logger.info(
                 f"Fidelity: {fidelity:.4f}, "
                 f"Number of qubits: {num_qubits}, "
                 f"Number of layers: {num_layers}, "
