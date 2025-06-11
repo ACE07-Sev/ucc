@@ -1,14 +1,14 @@
 import numpy as np
 from numpy.typing import NDArray
-import quimb.tensor as qtn # type: ignore
-from qiskit import QuantumCircuit # type: ignore
-from qiskit.quantum_info import Statevector # type: ignore
+import quimb.tensor as qtn  # type: ignore
+from qiskit import QuantumCircuit  # type: ignore
+from qiskit.quantum_info import Statevector  # type: ignore
 from .utils import calculate_entanglement_entropy_slope
 import warnings
 
 
 def gram_schmidt(matrix: NDArray[np.complex128]) -> NDArray[np.complex128]:
-    """ Perform Gram-Schmidt orthogonalization on the columns of a matrix
+    """Perform Gram-Schmidt orthogonalization on the columns of a matrix
     to define the unitary block to encode the MPS.
 
     Notes
@@ -32,7 +32,7 @@ def gram_schmidt(matrix: NDArray[np.complex128]) -> NDArray[np.complex128]:
 
         # If column is (approximately) zero, replace with random
         if np.allclose(column, 0):
-            column = np.random.uniform(-1, 1, num_rows) # type: ignore
+            column = np.random.uniform(-1, 1, num_rows)  # type: ignore
             if np.iscomplexobj(matrix):
                 column = column + 1j * np.random.uniform(-1, 1, num_rows)
 
@@ -44,7 +44,7 @@ def gram_schmidt(matrix: NDArray[np.complex128]) -> NDArray[np.complex128]:
         norm = np.linalg.norm(column)
         if norm < 1e-12:
             is_complex = np.iscomplexobj(matrix)
-            column = np.random.uniform(-1, 1, num_rows) # type: ignore
+            column = np.random.uniform(-1, 1, num_rows)  # type: ignore
             if is_complex:
                 column += 1j * np.random.uniform(-1, 1, num_rows)
             for basis_vector in orthonormal_basis:
@@ -57,7 +57,7 @@ def gram_schmidt(matrix: NDArray[np.complex128]) -> NDArray[np.complex128]:
 
 
 class Sequential:
-    def __init__(self, max_fidelity_threshold: float=0.95) -> None:
+    def __init__(self, max_fidelity_threshold: float = 0.95) -> None:
         """Initialize the Sequential class.
 
         Args:
@@ -66,8 +66,10 @@ class Sequential:
         """
         self.max_fidelity_threshold = max_fidelity_threshold
 
-    def generate_layer(self, mps: qtn.MatrixProductState) -> list[tuple[list[int], NDArray[np.complex128]]]:
-        """ Convert a Matrix Product State (MPS) to a circuit representation
+    def generate_layer(
+        self, mps: qtn.MatrixProductState
+    ) -> list[tuple[list[int], NDArray[np.complex128]]]:
+        """Convert a Matrix Product State (MPS) to a circuit representation
         using a single unitary layer.
 
         Args:
@@ -108,10 +110,12 @@ class Sequential:
             # Put qubit ordering in LSB (we provide this so that users can modify between LSB and MSB)
             # To put into MSB, comment the second line below
             qubits = reversed(range(i - int(np.ceil(np.log2(d_left))), i + 1))
-            qubits = [abs(qubit - num_sites + 1) for qubit in qubits] # type: ignore
+            qubits = [abs(qubit - num_sites + 1) for qubit in qubits]  # type: ignore
 
             # Create all-zero matrix and add the isometry columns
-            matrix = np.zeros((isometry.shape[0], isometry.shape[0]), dtype=isometry.dtype)
+            matrix = np.zeros(
+                (isometry.shape[0], isometry.shape[0]), dtype=isometry.dtype
+            )
 
             # Keep columns for which all ancillas are in the zero state
             matrix[:, : isometry.shape[1]] = isometry
@@ -120,18 +124,18 @@ class Sequential:
             unitary = gram_schmidt(matrix)
 
             # Store the unitary layer for the circuit
-            unitary_layer.append((qubits, unitary)) # type: ignore
+            unitary_layer.append((qubits, unitary))  # type: ignore
 
         return unitary_layer
 
     def mps_to_circuit_approx(
-            self,
-            statevector: NDArray[np.complex128],
-            max_num_layers: int,
-            chi_max: int,
-            verbose: bool = False
-        ) -> QuantumCircuit:
-        r""" Approximately encodes the MPS into a circuit via multiple layers
+        self,
+        statevector: NDArray[np.complex128],
+        max_num_layers: int,
+        chi_max: int,
+        verbose: bool = False,
+    ) -> QuantumCircuit:
+        r"""Approximately encodes the MPS into a circuit via multiple layers
         of exact encoding of bond 2 truncated MPS.
 
         Whilst we can encode the MPS exactly in a single layer, we require
@@ -153,7 +157,11 @@ class Sequential:
             QuantumCircuit: The generated quantum circuit that encodes the MPS.
         """
         mps = qtn.MatrixProductState.from_dense(statevector)
-        mps: qtn.MatrixProductState = qtn.tensor_1d_compress.tensor_network_1d_compress(mps, max_bond=chi_max) # type: ignore
+        mps: qtn.MatrixProductState = (
+            qtn.tensor_1d_compress.tensor_network_1d_compress(
+                mps, max_bond=chi_max
+            )
+        )  # type: ignore
         mps.permute_arrays()
 
         mps.compress(form="left", max_bond=chi_max)
@@ -196,24 +204,20 @@ class Sequential:
                 inverse = unitary_layer[-(i + 1)][1].conj().T
 
                 if inverse.shape[0] == 4:
-                    disentangled_mps.gate_split_(
-                        inverse, (i - 1, i)
-                    )
+                    disentangled_mps.gate_split_(inverse, (i - 1, i))
                 else:
-                    disentangled_mps.gate_(
-                        inverse, (i), contract=True
-                    )
+                    disentangled_mps.gate_(inverse, (i), contract=True)
 
             # Compress the disentangled MPS to a maximum bond dimension of chi_max
             # This is to ensure that the disentangled MPS does not grow too large
             # and improves the fidelity of the encoding
-            disentangled_mps: qtn.MatrixProductState = qtn.tensor_1d_compress.tensor_network_1d_compress( # type: ignore
-                disentangled_mps, max_bond=chi_max
+            disentangled_mps: qtn.MatrixProductState = (
+                qtn.tensor_1d_compress.tensor_network_1d_compress(  # type: ignore
+                    disentangled_mps, max_bond=chi_max
+                )
             )
 
-            fidelity = np.vdot(
-                disentangled_mps.to_dense(), zero_state
-            )
+            fidelity = np.vdot(disentangled_mps.to_dense(), zero_state)
 
             if fidelity >= self.max_fidelity_threshold:
                 # If the disentangled MPS is close enough to the zero state,
@@ -270,13 +274,13 @@ class Sequential:
         return num_layers
 
     def __call__(
-            self,
-            statevector: NDArray[np.complex128],
-            max_num_layers: int,
-            chi_max: int,
-            automatic_params: bool = True,
-            verbose: bool = False
-        ) -> QuantumCircuit:
+        self,
+        statevector: NDArray[np.complex128],
+        max_num_layers: int,
+        chi_max: int,
+        automatic_params: bool = True,
+        verbose: bool = False,
+    ) -> QuantumCircuit:
         """Call the instance to create the circuit that encodes the statevector.
 
         Args:
@@ -307,7 +311,7 @@ class Sequential:
         if automatic_params:
             max_num_layers = self.optimal_params(statevector)
 
-        circuit =  self.mps_to_circuit_approx(
+        circuit = self.mps_to_circuit_approx(
             statevector, max_num_layers, chi_max, verbose=verbose
         )
 

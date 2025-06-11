@@ -54,7 +54,7 @@ def has_enough_memory(num_qubits: int) -> tuple[bool, float, float]:
     # requires at worst-case (volume-law)
     # statevectors use np.complex128 which needs 16 bytes
     # Use half of the memory available to store the IR
-    memory_required_gb = 2**(4 + num_qubits - 31)
+    memory_required_gb = 2 ** (4 + num_qubits - 31)
     has_memory = memory_required_gb <= available_memory_gb
 
     return has_memory, memory_required_gb, available_memory_gb
@@ -109,8 +109,12 @@ def approx_compile(circuit):
 
     # If the compiled circuit is deeper and has more cx than permitted, discard
     # the compilation
-    aqc_transpiled = qiskit_transpile(aqc_circuit, basis_gates=["u3", "cx"], optimization_level=3)
-    original_transpiled = qiskit_transpile(circuit, basis_gates=["u3", "cx"], optimization_level=3)
+    aqc_transpiled = qiskit_transpile(
+        aqc_circuit, basis_gates=["u3", "cx"], optimization_level=3
+    )
+    original_transpiled = qiskit_transpile(
+        circuit, basis_gates=["u3", "cx"], optimization_level=3
+    )
 
     aqc_cx_count = aqc_transpiled.count_ops().get("cx", 0)
     aqc_depth = aqc_transpiled.depth()
@@ -125,6 +129,7 @@ def approx_compile(circuit):
         return circuit
 
     return aqc_circuit
+
 
 def compile(
     circuit,

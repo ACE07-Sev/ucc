@@ -1,6 +1,6 @@
 import numpy as np
 from numpy.typing import NDArray
-from qmprs.synthesis.mps_encoding import Sequential as QmprsSequential # type: ignore
+from qmprs.synthesis.mps_encoding import Sequential as QmprsSequential  # type: ignore
 from quick.circuit import QiskitCircuit
 from qiskit import QuantumCircuit
 from .utils import calculate_entanglement_entropy_slope
@@ -14,6 +14,7 @@ class QmprsCompiler:
     For more information, see:
     https://github.com/Qualition/qmprs
     """
+
     def __init__(self, max_fidelity_threshold=0.9) -> None:
         """Initialize the QmprsCompiler with a target fidelity.
 
@@ -50,10 +51,8 @@ class QmprsCompiler:
         return num_layers, num_sweeps
 
     def __call__(
-            self,
-            statevector: NDArray[np.complex128],
-            verbose: bool = False
-        ) -> QuantumCircuit:
+        self, statevector: NDArray[np.complex128], verbose: bool = False
+    ) -> QuantumCircuit:
         """Call the instance to create the circuit that encodes the statevector.
 
         Args:
@@ -84,7 +83,7 @@ class QmprsCompiler:
             statevector=statevector,
             bond_dimension=2**num_qubits,
             num_layers=num_layers,
-            num_sweeps=num_sweeps
+            num_sweeps=num_sweeps,
         )
 
         if verbose:
