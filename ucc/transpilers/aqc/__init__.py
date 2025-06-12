@@ -11,7 +11,6 @@ __all__ = [
     "qmprs_available",
     "MPS_Encoder",
     "approx_compile",
-    "MPSPass",
 ]
 
 from .mps_utils import calculate_entanglement_entropy_slope, has_enough_memory
@@ -93,7 +92,3 @@ def approx_compile(circuit: QuantumCircuit) -> QuantumCircuit:
         return circuit
 
     return aqc_circuit
-
-
-# Custom pass using `approx_compile`
-from .mps_pass import MPSPass

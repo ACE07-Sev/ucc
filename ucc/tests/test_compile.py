@@ -14,7 +14,7 @@ from qiskit.circuit.library import HGate, XGate
 from ucc.tests.mock_backends import Mybackend
 from ucc import compile
 from ucc.transpilers.ucc_defaults import UCCDefault1
-from ucc.transpilers.aqc import MPSPass
+from ucc.transpilers.aqc.mps_pass import MPSPass
 import numpy as np
 
 
