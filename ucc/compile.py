@@ -3,7 +3,6 @@ from qbraid.transpiler import ConversionGraph
 from qbraid.transpiler import transpile as translate
 from .transpilers.ucc_defaults import UCCDefault1
 from qiskit import transpile as qiskit_transpile
-from .aqc import approx_compile
 
 import sys
 import warnings
@@ -32,7 +31,6 @@ def compile(
     target_gateset=None,
     target_device=None,
     custom_passes=None,
-    aqc=False,
 ):
     """Compiles the provided quantum `circuit` by translating it to a Qiskit
     circuit, transpiling it, and returning the optimized circuit in the
@@ -50,7 +48,6 @@ def compile(
         target_device (qiskit.transpiler.Target): (optional) The target device to compile the circuit for. None if no device to target
         custom_passes (list[qiskit.transpiler.TransformationPass]): (optional) A list of custom passes to apply after the default set
             of passes. Defaults to None.
-        aqc (bool): (optional) If True, uses the AQC compilation strategy. Defaults to False.
 
     Returns:
         object: The compiled circuit in the specified format.
@@ -60,12 +57,6 @@ def compile(
 
     # Translate to Qiskit Circuit object
     qiskit_circuit = translate(circuit, "qiskit")
-
-    # Utilize approximate quantum compilation via MPS encoding
-    # This is useful for area-law entangled circuits which can
-    # be significantly compressed without losing much fidelity
-    if aqc:
-        qiskit_circuit = approx_compile(qiskit_circuit)
 
     ucc_default1 = UCCDefault1(target_device=target_device)
     if custom_passes is not None:

@@ -3,7 +3,7 @@ from numpy.typing import NDArray
 import quimb.tensor as qtn  # type: ignore
 from qiskit import QuantumCircuit  # type: ignore
 from qiskit.quantum_info import Statevector  # type: ignore
-from .utils import calculate_entanglement_entropy_slope
+from .mps_utils import calculate_entanglement_entropy_slope
 import warnings
 import logging
 
