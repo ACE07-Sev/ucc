@@ -158,8 +158,12 @@ Alternatively, we can add our custom pass, as shown in the following example.
 An example of a custom pass: Approximate Quantum Compilation via MPS encoding
 =============================================================================
 The ``MPSEncoder`` is a custom pass provided in ``ucc.aqc``. Users can opt for `qmprs<https://github.com/Qualition/qmprs>`_ for a more advanced implementation of the same pass.
+You can install it with ``pip install git+https://github.com/Qualition/qmprs.git``.
+
 This pass leverages Matrix Product State (MPS) representation of a state to approximately compile the state to a quantum circuit using multiple layers of one and two qubit gates in O(N) depth.
 The automatic parameter definition takes the entanglement structure of the input state into account, and tries to come up with the optimal parameters to maximize fidelity and minimize circuit depth. Users can also override ``optimal_params`` static method to define their own rule for generating the optimal parameters.
+
+Most quantum circuit libraries are written assuming the initial state is all zeros in the computational basis. This pass's optimization may rely on that assumption. If you intend to run your post-compiled circuit on other input states, or in sequence with other circuits, be aware that this pass might not be equivalent in those cases.
 
 Here is an example of how to use the ``MPSEncoder``:
 

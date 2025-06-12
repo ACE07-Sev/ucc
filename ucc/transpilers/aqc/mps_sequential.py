@@ -136,7 +136,6 @@ class Sequential:
         statevector: NDArray[np.complex128],
         max_num_layers: int,
         chi_max: int,
-        verbose: bool = False,
     ) -> QuantumCircuit:
         r"""Approximately encodes the MPS into a circuit via multiple layers
         of exact encoding of bond 2 truncated MPS.
@@ -154,7 +153,6 @@ class Sequential:
         Args:
             statevector (NDArray[np.complex128]): The statevector to convert.
             max_num_layers (int): The number of layers to use in the circuit.
-            verbose (bool): If True, print additional information during the process.
 
         Returns:
             QuantumCircuit: The generated quantum circuit that encodes the MPS.
@@ -225,19 +223,17 @@ class Sequential:
             if fidelity >= self.max_fidelity_threshold:
                 # If the disentangled MPS is close enough to the zero state,
                 # we can stop the disentanglement process
-                if verbose:
-                    print(
-                        f"Reached target fidelity {fidelity}. "
-                        f"{layer_index + 1} layers used."
-                    )
+                logger.info(
+                    f"Reached target fidelity {fidelity}. "
+                    f"{layer_index + 1} layers used."
+                )
                 break
 
         if layer_index == max_num_layers - 1:
-            if verbose:
-                print(
-                    f"Reached fidelity {fidelity} with "
-                    f"maximum number of layers {max_num_layers}."
-                )
+            logger.info(
+                f"Reached fidelity {fidelity} with "
+                f"maximum number of layers {max_num_layers}."
+            )
 
         # The layers disentangle the MPS to a state close to |00...0>
         # inv(U_k) ... inv(U_1) |ψ> = |00...0>
@@ -280,13 +276,11 @@ class Sequential:
     def __call__(
         self,
         statevector: NDArray[np.complex128],
-        verbose: bool = False,
     ) -> QuantumCircuit:
         """Call the instance to create the circuit that encodes the statevector.
 
         Args:
             statevector (NDArray[np.complex128]): The statevector to convert.
-            verbose (bool): If True, print additional information during the process.
 
         Returns:
             QuantumCircuit: The generated quantum circuit.
@@ -309,15 +303,14 @@ class Sequential:
         max_num_layers = self.optimal_params(statevector)
 
         circuit = self.mps_to_circuit_approx(
-            statevector, max_num_layers, 2**num_qubits, verbose=verbose
+            statevector, max_num_layers, 2**num_qubits
         )
 
-        if verbose:
-            fidelity = np.vdot(Statevector(circuit).data, statevector)
-            logger.info(
-                f"Fidelity: {fidelity:.4f}, "
-                f"Number of qubits: {num_qubits}, "
-                f"Number of layers: {max_num_layers}, "
-            )
+        fidelity = np.vdot(Statevector(circuit).data, statevector)
+        logger.info(
+            f"Fidelity: {fidelity:.4f}, "
+            f"Number of qubits: {num_qubits}, "
+            f"Number of layers: {max_num_layers}, "
+        )
 
         return circuit

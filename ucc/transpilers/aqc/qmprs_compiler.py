@@ -53,14 +53,11 @@ class QmprsCompiler:
 
         return num_layers, num_sweeps
 
-    def __call__(
-        self, statevector: NDArray[np.complex128], verbose: bool = False
-    ) -> QuantumCircuit:
+    def __call__(self, statevector: NDArray[np.complex128]) -> QuantumCircuit:
         """Call the instance to create the circuit that encodes the statevector.
 
         Args:
             statevector (NDArray[np.complex128]): The statevector to convert.
-            verbose (bool): If True, print additional information during the process.
 
         Returns:
             QuantumCircuit: The generated quantum circuit.
@@ -89,13 +86,12 @@ class QmprsCompiler:
             num_sweeps=num_sweeps,
         )
 
-        if verbose:
-            fidelity = np.vdot(circuit.get_statevector(), statevector)
-            logger.info(
-                f"Fidelity: {fidelity:.4f}, "
-                f"Number of qubits: {num_qubits}, "
-                f"Number of layers: {num_layers}, "
-                f"Number of sweeps: {num_sweeps}"
-            )
+        fidelity = np.vdot(circuit.get_statevector(), statevector)
+        logger.info(
+            f"Fidelity: {fidelity:.4f}, "
+            f"Number of qubits: {num_qubits}, "
+            f"Number of layers: {num_layers}, "
+            f"Number of sweeps: {num_sweeps}"
+        )
 
         return circuit.circuit
