@@ -157,7 +157,7 @@ Alternatively, we can add our custom pass, as shown in the following example.
 
 An example of a custom pass: Approximate Quantum Compilation via MPS encoding
 =============================================================================
-The ``MPSEncoder`` is a custom pass provided in ``ucc.aqc``. Users can opt for `qmprs<https://github.com/Qualition/qmprs>`_ for a more advanced implementation of the same pass.
+The ``MPSEncoder`` is a custom pass provided in ``ucc.aqc``. Users can opt for `qmprs <https://github.com/Qualition/qmprs>`_ for a more advanced implementation of the same pass.
 You can install it with ``pip install git+https://github.com/Qualition/qmprs.git``.
 
 This pass leverages Matrix Product State (MPS) representation of a state to approximately compile the state to a quantum circuit using multiple layers of one and two qubit gates in O(N) depth.
@@ -191,7 +191,7 @@ Here is an example of how to use the ``MPSEncoder``:
 
 .. testcode:: mps
 
-   from ucc.transpilers.aqc import MPSPass
+   from ucc.transpilers.aqc.mps_pass import MPSPass
    result = compile(circuit_to_compile, custom_passes=[MPSPass()])
 
 The ``MPSEncoder`` is just one example of the extensibility of UCC. If you would like to port a compile pass from another framework, please create a `proposal <https://github.com/unitaryfoundation/ucc/discussions/new?category=new-compiler-pass>`_ and be ready to benchmark its performance relative to ``UCCDefault1``.
