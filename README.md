@@ -18,15 +18,16 @@ Check out our [open issues tagged with #merit-bounty](https://github.com/unitary
 
 ### Want to know more?
 
-- Check out our [documentation](https://ucc.readthedocs.io/en/latest/), which you can build locally after installation by running `make html` in `ucc/docs/source`.
-- Watch our [introductory video](https://www.youtube.com/watch?v=11uQynyOUI8) on UCC presented at [FOSDEM 2025](https://fosdem.org/2025/) by [@natestemen](https://github.com/natestemen/).
-- Read the [launch announcement](https://unitary.foundation/posts/2025_ucc_launch_blog) to learn more on the current state of UCC, its capabilities and future direction.
-- For code, repo, or theory questions, especially those requiring more detailed responses, submit a [Discussion](https://github.com/unitaryfoundation/ucc/discussions).
-- For casual or time sensitive questions, chat with us on [Discord](http://discord.unitary.foundation).
-<!-- start-changelog-link-to-remove-for-docs -->
-- See the [changelog](./CHANGELOG.md) for the latest updates and release notes.
-<!-- end-changelog-link-to-remove-for-docs -->
-- Explore [research publications](https://ucc.readthedocs.io/en/latest/research_references.html) that utilize UCC.
+| Resource | Description |
+|----------|-------------|
+| [Documentation](https://ucc.readthedocs.io/en/latest/) | Build locally after installation by running `make html` in `ucc/docs/source`. |
+| [Introductory video](https://www.youtube.com/watch?v=11uQynyOUI8) | Presentation on UCC at [FOSDEM 2025](https://fosdem.org/2025/) by [@natestemen](https://github.com/natestemen/). |
+| [Launch announcement](https://unitary.foundation/posts/2025_ucc_launch_blog) | Learn about the current state of UCC, its capabilities, and future direction. |
+| [Discussions](https://github.com/unitaryfoundation/ucc/discussions) | For detailed code, repo, or theory questions. |
+| [Discord](http://discord.unitary.foundation) | For casual or time-sensitive questions. |
+| [Changelog](./CHANGELOG.md) | See the latest updates and release notes. |
+| [Research publications](https://ucc.readthedocs.io/en/latest/research_references.html) | Explore academic work utilizing UCC. |
+
 
 ## Quickstart
 
