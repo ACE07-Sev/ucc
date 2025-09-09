@@ -18,15 +18,39 @@ Check out our [open issues tagged with #merit-bounty](https://github.com/unitary
 
 ### Want to know more?
 
-| Resource | Description |
-|----------|-------------|
-| [Documentation](https://ucc.readthedocs.io/en/latest/) | Build locally after installation by running `make html` in `ucc/docs/source`. |
-| [Introductory video](https://www.youtube.com/watch?v=11uQynyOUI8) | Presentation on UCC at [FOSDEM 2025](https://fosdem.org/2025/) by [@natestemen](https://github.com/natestemen/). |
-| [Launch announcement](https://unitary.foundation/posts/2025_ucc_launch_blog) | Learn about the current state of UCC, its capabilities, and future direction. |
-| [Discussions](https://github.com/unitaryfoundation/ucc/discussions) | For detailed code, repo, or theory questions. |
-| [Discord](http://discord.unitary.foundation) | For casual or time-sensitive questions. |
-| [Changelog](./CHANGELOG.md) | See the latest updates and release notes. |
-| [Research publications](https://ucc.readthedocs.io/en/latest/research_references.html) | Explore academic work utilizing UCC. |
+<table>
+  <thead>
+    <tr>
+      <th>Resource</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="https://ucc.readthedocs.io/en/latest/"> Documentation</a> :open_file_folder: </td>
+      <td>Check out our documentation for more information about UCC.</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/unitaryfoundation/ucc/discussions">Discussions</a> :microphone: </td>
+      <td>For detailed code, repo, or theory questions.</td>
+    </tr>
+    <tr>
+      <td><a href="https://discord.gg/unitary-fund-764231928676089909">Discord</a> :office: </td>
+      <td>For casual or time-sensitive questions.</td>
+    </tr>
+    <!-- start-changelog-link-to-remove-for-docs -->
+    <tr>
+      <td><a href="./CHANGELOG.md">Changelog</a> :clipboard: </td>
+      <td>See the latest updates and release notes.</td>
+    </tr>
+    <!-- end-changelog-link-to-remove-for-docs -->
+    <tr>
+      <td><a href="https://ucc.readthedocs.io/en/latest/research_references.html">Research publications</a> :books: </td>
+      <td>Explore academic work utilizing UCC.</td>
+    </tr>
+  </tbody>
+</table>
+
 
 
 ## Quickstart
