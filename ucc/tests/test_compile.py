@@ -110,6 +110,20 @@ def test_tket_compile():
     assert isinstance(result_circuit, TketCircuit)
 
 
+def test_callback():
+    was_called = False
+
+    def my_callback(**kwargs):
+        nonlocal was_called
+        was_called = True
+
+    circuit = QiskitCircuit(2)
+    circuit.h(0)
+    circuit.cx(0, 1)
+    _ = compile(circuit, callback=my_callback)
+    assert was_called
+
+
 def test_custom_pass():
     """Verify that a custom pass works with a non-qiskit input circuit"""
 

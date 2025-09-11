@@ -31,6 +31,7 @@ def compile(
     target_gateset=None,
     target_device=None,
     custom_passes=None,
+    callback=None,
 ):
     """Compiles the provided quantum `circuit` by translating it to a Qiskit
     circuit, transpiling it, and returning the optimized circuit in the
@@ -48,6 +49,14 @@ def compile(
         custom_passes (list[qiskit.transpiler.TransformationPass]): (optional)
             A list of custom passes to apply after the default set
             of passes. Defaults to None.
+        callback: A callback function that will be called after each pass execution. The
+                function will be called with 5 keyword arguments::
+
+                    pass_ (Pass): the pass being run
+                    dag (DAGCircuit): the dag output of the pass
+                    time (float): the time to execute the pass
+                    property_set (PropertySet): the property set
+                    count (int): the index for the pass execution
 
     Returns:
         object: The compiled circuit in the specified format.
@@ -74,7 +83,9 @@ def compile(
         ucc_default1.pass_manager.append(custom_passes)
 
     # Compile the circuit using the UCCDefault1 pass manager
-    compiled_circuit = ucc_default1.run(basis_translated_circuit)
+    compiled_circuit = ucc_default1.run(
+        basis_translated_circuit, callback=callback
+    )
 
     # Translate the compiled circuit to the desired format
     final_result = translate(compiled_circuit, return_format)

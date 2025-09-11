@@ -125,8 +125,22 @@ class UCCDefault1:
             self.pass_manager.append(VF2PostLayout(target=target_device))
             self.pass_manager.append(ApplyLayout())
 
-    def run(self, circuits):
-        return self.pass_manager.run(circuits)
+    def run(self, circuits, callback=None):
+        """
+        Run the pass manager on the given circuit(s).
+
+            Args:
+                circuits (QuantumCircuit or list[QuantumCircuit]): Circuit(s) to transpile
+                callback: A callback function that will be called after each pass execution. The
+                function will be called with 5 keyword arguments::
+
+                    pass_ (Pass): the pass being run
+                    dag (DAGCircuit): the dag output of the pass
+                    time (float): the time to execute the pass
+                    property_set (PropertySet): the property set
+                    count (int): the index for the pass execution
+        """
+        return self.pass_manager.run(circuits, callback=callback)
 
 
 def _get_trial_count(default_trials=5):
