@@ -144,20 +144,23 @@ def test_custom_pass():
     post_compiler_circuit = compile(cirq_circuit, custom_passes=[HtoX()])
     assert_same_circuits(post_compiler_circuit, CirqCircuit(X(qubit)))
 
-    def test_compile_target_device_opset():
-        circuit = QiskitCircuit(3)
-        circuit.cx(0, 1)
-        circuit.cx(0, 2)
 
-        # Create a simple target that does not have direct CX between 0 and 2
-        t = Mybackend().target
-        result_circuit = compile(
-            circuit, return_format="original", target_device=t
-        )
-        # Check that the gates in the final circuit are all supported on the target device
-        assert set(op.name for op in result_circuit).issubset(
-            t.operation_names
-        )
+def test_compile_target_device_opset():
+    circuit = QiskitCircuit(3)
+    circuit.cz(0, 1)
+    circuit.cz(0, 2)
+
+    # Create a simple target that does not have direct CX between 0 and 2
+    t = Mybackend().target
+    # Check that the gates in the original circuit are not support by the target
+    # to ensure this isn't a trival check
+    assert set(op.name for op in circuit).issubset(t.operation_names) is False
+
+    result_circuit = compile(
+        circuit, return_format="original", target_device=t
+    )
+    # Check that the gates in the final circuit are all supported on the target device
+    assert set(op.name for op in result_circuit).issubset(t.operation_names)
 
     def test_compile_target_device_coupling_map():
         circuit = QiskitCircuit(3)
@@ -181,6 +184,21 @@ def test_custom_pass():
 
 def test_compile_with_no_target_gateset_or_device():
     """Test that the final circuit is in the default gateset if no `target_gateset` or `target_device` is provided."""
+
+    # Circuit not in the default target_gateset {"cx", "rz", "rx", "ry", "h"}
+    circuit = QiskitCircuit(2)
+    circuit.cz(0, 1)
+    circuit.h(0)
+
+    result_circuit = compile(
+        circuit,
+    )
+
+    assert set(op.name for op in result_circuit).issubset(
+        {"cx", "rz", "rx", "ry", "h"}
+    )
+
+    # Circuit already in the default target_gateset {"cx", "rz", "rx", "ry", "h"}
     circuit = QiskitCircuit(2)
     circuit.cx(0, 1)
     circuit.h(0)
@@ -573,7 +591,7 @@ def test_compile_with_target_gateset():
 def test_compilation_retains_gateset(circuit_function, num_qubits, seed):
     circuit = circuit_function(num_qubits, seed)
     transpiler = UCCDefault1()
-    target_basis = transpiler.target_basis
+    target_basis = transpiler.target_gateset
     transpiled_circuit = transpiler.run(circuit)
     dag = circuit_to_dag(transpiled_circuit)
     analysis_pass = GatesInBasis(basis_gates=target_basis)
