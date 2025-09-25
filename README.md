@@ -13,45 +13,17 @@ The **Unitary Compiler Collection (UCC)** is a Python library for frontend-agnos
 
 By leveraging [qBraid](https://github.com/qBraid/qBraid), UCC interfaces automatically with multiple quantum computing frameworks, including [Qiskit](https://github.com/Qiskit/qiskit), [Cirq](https://github.com/quantumlib/Cirq), and [PyTKET](https://github.com/CQCL/tket) and supports programs in OpenQASM 2 and [OpenQASM 3](https://openqasm.com/). For the full list, just call `ucc.supported_circuit_formats`.
 
-> _We use the [Merit Terminal](https://terminal.merit.systems/unitaryfoundation/ucc/) to pay contributors who implement new compiler passes in our repo!  
+> _We use the [Merit Terminal](https://terminal.merit.systems/unitaryfoundation/ucc/) to pay contributors who implement new compiler passes in our repo!
 Check out our [open issues tagged with #merit-bounty](https://github.com/unitaryfoundation/ucc/issues?q=is%3Aissue%20state%3Aopen%20label%3Amerit-bounty) to see which are eligible for compensation._
 
 ### Want to know more?
 
-<table>
-  <thead>
-    <tr>
-      <th>Resource</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><a href="https://ucc.readthedocs.io/en/latest/"> Documentation</a> :open_file_folder: </td>
-      <td>Check out our documentation for more information about UCC.</td>
-    </tr>
-    <tr>
-      <td><a href="https://github.com/unitaryfoundation/ucc/discussions">Discussions</a> :microphone: </td>
-      <td>For detailed code, repo, or theory questions.</td>
-    </tr>
-    <tr>
-      <td><a href="https://discord.gg/unitary-fund-764231928676089909">Discord</a> :office: </td>
-      <td>For casual or time-sensitive questions.</td>
-    </tr>
-    <!-- start-changelog-link-to-remove-for-docs -->
-    <tr>
-      <td><a href="./CHANGELOG.md">Changelog</a> :clipboard: </td>
-      <td>See the latest updates and release notes.</td>
-    </tr>
-    <!-- end-changelog-link-to-remove-for-docs -->
-    <tr>
-      <td><a href="https://ucc.readthedocs.io/en/latest/research_references.html">Research publications</a> :books: </td>
-      <td>Explore academic work utilizing UCC.</td>
-    </tr>
-  </tbody>
-</table>
-
-
+| Resource | Description |
+|----------|-------------|
+| [Documentation](https://ucc.readthedocs.io/en/latest/) | Check out our documentation for more information on using and contributing to UCC. |
+| [Discussions](https://github.com/unitaryfoundation/ucc/discussions) | For code, repo, or ecosystem questions. |
+| [Discord](https://discord.com/channels/764231928676089909/1346546840526524427) | For casual or time-sensitive questions, including weekly community calls.|
+| [Research Publications](https://ucc.readthedocs.io/en/latest/research_references.html) | Explore academic work utilizing UCC. |
 
 ## Quickstart
 
@@ -132,8 +104,8 @@ We’re building UCC as a community-driven project.
 Your contributions help improve the tool for everyone!
 There are many ways you can contribute, such as
 
-- 💸 **Create a Custom Compiler Pass**:💸 Learn how in the [User Guide](https://ucc.readthedocs.io/en/latest/user_guide.html). 
- Eligible for compensation through the [Merit Terminal](https://terminal.merit.systems/unitaryfoundation/ucc/)! 
+- 💸 **Create a Custom Compiler Pass**:💸 Learn how in the [User Guide](https://ucc.readthedocs.io/en/latest/user_guide.html).
+ Eligible for compensation through the [Merit Terminal](https://terminal.merit.systems/unitaryfoundation/ucc/)!
 - **Submit a bug report or feature request**: Submit a bug report or feature request [on GitHub](https://github.com/unitaryfoundation/ucc/issues/new/choose).
 - **Contribute Code**: Follow the [Contribution Guide](https://ucc.readthedocs.io/en/latest/contributing.html) to submit new passes and improvements.
 
