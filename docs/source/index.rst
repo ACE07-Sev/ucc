@@ -3,12 +3,6 @@ Welcome to the docs!
 
 .. include:: ../../README.md
    :parser: myst_parser.sphinx_
-   :end-before: <!-- start-changelog-link-to-remove-for-docs -->
-
-
-.. include:: ../../README.md
-   :parser: myst_parser.sphinx_
-   :start-after: <!-- end-changelog-link-to-remove-for-docs -->
    :end-before: <!-- start-how-does-ucc-stack-up -->
 
 .. include:: ../../README.md
