@@ -162,24 +162,25 @@ def test_compile_target_backend_opset():
     # Check that the gates in the final circuit are all supported on the target device
     assert set(op.name for op in result_circuit).issubset(t.operation_names)
 
-    def test_compile_target_backend_coupling_map():
-        circuit = QiskitCircuit(3)
-        circuit.cx(0, 1)
-        circuit.cx(0, 2)
 
-        # Create a simple target that does not have direct CX between 0 and 2
-        t = Mybackend()
-        result_circuit = compile(
-            circuit, return_format="original", target_backend=t
-        )
-        # Check that the compiled circuit respects the coupling map of the target device
-        analysis_pass = CheckMap(
-            t.build_coupling_map(), property_set_field="check_map"
-        )
+def test_compile_target_backend_coupling_map():
+    circuit = QiskitCircuit(3)
+    circuit.cx(0, 1)
+    circuit.cx(0, 2)
 
-        dag = circuit_to_dag(result_circuit)
-        analysis_pass.run(dag)
-        assert analysis_pass.property_set["check_map"]
+    # Create a simple target that does not have direct CX between 0 and 2
+    t = Mybackend()
+    result_circuit = compile(
+        circuit, return_format="original", target_backend=t
+    )
+    # Check that the compiled circuit respects the coupling map of the target device
+    analysis_pass = CheckMap(
+        t.target.build_coupling_map(), property_set_field="check_map"
+    )
+
+    dag = circuit_to_dag(result_circuit)
+    analysis_pass.run(dag)
+    assert analysis_pass.property_set["check_map"]
 
 
 def test_compile_with_no_target_gateset_or_device():
@@ -210,6 +211,18 @@ def test_compile_with_no_target_gateset_or_device():
     assert set(op.name for op in result_circuit).issubset(
         {"cx", "rz", "rx", "ry", "h"}
     )
+
+
+def test_raise_error_on_bad_backend():
+    circuit = QiskitCircuit(2)
+    circuit.cx(0, 1)
+    circuit.h(0)
+
+    class BadBackend:
+        pass
+
+    with pytest.raises(ValueError):
+        _ = compile(circuit, target_backend=BadBackend())
 
 
 def test_bqskit_compile():

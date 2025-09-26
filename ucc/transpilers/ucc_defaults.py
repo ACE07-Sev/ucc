@@ -14,20 +14,16 @@ except ImportError:
 from qiskit.providers import Backend
 from qiskit.transpiler import PassManager
 from qiskit import user_config
+from qiskit.transpiler import generate_preset_pass_manager
 from qiskit.transpiler.passes import (
-    ApplyLayout,
     ConsolidateBlocks,
     CollectCliffords,
     HighLevelSynthesis,
     HLSConfig,
-    SabreLayout,
-    SabreSwap,
-    VF2Layout,
     CommutativeCancellation,
     Collect2qBlocks,
     UnitarySynthesis,
     Optimize1qGatesDecomposition,
-    VF2PostLayout,
 )
 from typing import Optional
 
@@ -71,13 +67,16 @@ class UCCDefault1:
             # If a backend is provided, use its target's operation names as the gateset
             self.target_gateset = self.target_backend.target.operation_names
         else:
-            self.target_gateset = self.DEFAULT_GATESET
+            raise ValueError(
+                "Provided backend does not provide a target with operation names"
+            )
 
-        self._add_local_passes(local_iterations)
-        self._add_map_passes()
-
-        self._add_local_passes(local_iterations)
-        self._add_map_passes()
+        if self.target_backend is None:
+            self._add_local_passes(local_iterations)
+        else:
+            self.pass_manager = generate_preset_pass_manager(
+                optimization_level=3, backend=self.target_backend
+            )
 
     @property
     def default_passes(self):
@@ -100,40 +99,6 @@ class UCCDefault1:
 
             # Add following passes if merging single qubit rotations that are interrupted by a commuting 2 qubit gate is desired
             # self.pass_manager.append(Optimize1qGatesSimpleCommutation(basis=self._1q_basis))
-
-    def _add_map_passes(self):
-        if self.target_backend is not None:
-            target = self.target_backend.target
-            coupling_map = target.build_coupling_map()
-            # self.pass_manager.append(ElidePermutations())
-            # self.pass_manager.append(SpectralMapping(coupling_list))
-            # self.pass_manager.append(SetLayout(pass_manager_config.initial_layout))
-            self.pass_manager.append(
-                SabreLayout(
-                    coupling_map,
-                    seed=1,
-                    max_iterations=4,
-                    swap_trials=_get_trial_count(20),
-                    layout_trials=_get_trial_count(20),
-                )
-            )
-
-            self.pass_manager.append(VF2Layout(target=target))
-            self.pass_manager.append(ApplyLayout())
-            self.pass_manager.append(
-                SabreSwap(
-                    coupling_map,
-                    heuristic="decay",
-                    seed=1,
-                    trials=_get_trial_count(20),
-                )
-            )
-            # self.pass_manager.append(MapomaticLayout(coupling_map))
-            self.pass_manager.append(VF2PostLayout(target=target))
-            self.pass_manager.append(ApplyLayout())
-            self._add_local_passes(1)
-            self.pass_manager.append(VF2PostLayout(target=target))
-            self.pass_manager.append(ApplyLayout())
 
     def run(self, circuits, callback=None):
         """
