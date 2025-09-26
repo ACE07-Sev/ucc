@@ -67,7 +67,9 @@ class UCCDefault1:
             # If a backend is provided, use its target's operation names as the gateset
             self.target_gateset = self.target_backend.target.operation_names
         else:
-            self.target_gateset = self.DEFAULT_GATESET
+            raise ValueError(
+                "Provided backend does not provide a target with operation names"
+            )
 
         if self.target_backend is None:
             self._add_local_passes(local_iterations)

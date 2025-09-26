@@ -213,6 +213,18 @@ def test_compile_with_no_target_gateset_or_device():
     )
 
 
+def test_raise_error_on_bad_backend():
+    circuit = QiskitCircuit(2)
+    circuit.cx(0, 1)
+    circuit.h(0)
+
+    class BadBackend:
+        pass
+
+    with pytest.raises(ValueError):
+        _ = compile(circuit, target_backend=BadBackend())
+
+
 def test_bqskit_compile():
     from ucc.transpilers.ucc_bqskit import BQSKitTransformationPass
 
