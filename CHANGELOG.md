@@ -1,6 +1,39 @@
 # Changelog
 <!-- Release notes generated using configuration in .github/release.yml at main -->
 
+## [0.4.10] - 2025-09-29
+[PyPI](https://pypi.org/project/ucc/0.4.10/) | [GitHub](https://github.com/unitaryfoundation/ucc/releases/tag/v0.4.10)
+This release switches to use Qiskit's preset pass managers when compiling for a target devices, and improves consistency of how backends and target gatesets are specified and handled. The release also updates instructions for how to propose and contribute new compiler passes and larger design changes to UCC.
+
+### ✨ Key Features
+* Set AGPL-3.0-only in pyproject.toml to match LICENSE and README by @ddri in https://github.com/unitaryfoundation/ucc/pull/498
+* Add link to Discussion template for new passes by @jordandsullivan in https://github.com/unitaryfoundation/ucc/pull/511
+* Update contributing.rst by @AbdullahKazi500 in https://github.com/unitaryfoundation/ucc/pull/513
+* Add callback support to compile by @bachase in https://github.com/unitaryfoundation/ucc/pull/527
+* Use resolved target_basis for pre-translation basis_gates by @bachase in https://github.com/unitaryfoundation/ucc/pull/525
+* fix(compile): use resolved target_basis for pre-translation basis_gates by @ddri in https://github.com/unitaryfoundation/ucc/pull/504
+* Adding a template design doc for review. Initial version is GH issue,… by @jordandsullivan in https://github.com/unitaryfoundation/ucc/pull/534
+* Update ucc API to accept Backends rather than Targets by @jordandsullivan in https://github.com/unitaryfoundation/ucc/pull/541
+* Updated readme with a table by @Qubit1718 in https://github.com/unitaryfoundation/ucc/pull/517
+* Use Qiskit default preset pass manager if given a target device by @bachase in https://github.com/unitaryfoundation/ucc/pull/542
+
+### 🔄 Dependencies
+By @dependabot
+* actions/setup-python (5 → 6) via [#518](https://github.com/unitaryfoundation/ucc/pull/518)
+* bqskit (1.2.0 → 1.2.1) via [#506](https://github.com/unitaryfoundation/ucc/pull/506)
+* pytket (2.9.1 → 2.9.3) via [#521](https://github.com/unitaryfoundation/ucc/pull/521)
+* pytest (8.4.1 → 8.4.2) via [#520](https://github.com/unitaryfoundation/ucc/pull/520)
+* pytest-cov (6.2.1 → 7.0.0) via [#519](https://github.com/unitaryfoundation/ucc/pull/519) + [#531](https://github.com/unitaryfoundation/ucc/pull/531)
+* qbraid (0.9.8 → 0.9.10) via [#508](https://github.com/unitaryfoundation/ucc/pull/508) + [#539](https://github.com/unitaryfoundation/ucc/pull/539)
+* ruff (0.12.10 → 0.13.1) via [#507](https://github.com/unitaryfoundation/ucc/pull/507) + [#522](https://github.com/unitaryfoundation/ucc/pull/522) + [#532](https://github.com/unitaryfoundation/ucc/pull/532) + [#537](https://github.com/unitaryfoundation/ucc/pull/537)
+
+### 👏 Community Spotlight
+* @ddri made their first contribution in https://github.com/unitaryfoundation/ucc/pull/498
+* @AbdullahKazi500 made their first contribution in https://github.com/unitaryfoundation/ucc/pull/513
+* @Qubit1718 made their first contribution in https://github.com/unitaryfoundation/ucc/pull/517
+
+**Full Changelog**: https://github.com/unitaryfoundation/ucc/compare/0.4.9...v0.4.10
+
 ## [0.4.9] - 2025-08-26
 [PyPI](https://pypi.org/project/ucc/0.4.9/) | [GitHub](https://github.com/unitaryfoundation/ucc/releases/tag/v0.4.9)
 In version 0.4.9, we optimized the logic for target gateset selection, made infrastructure and documentation updates and upgraded dependencies.
@@ -12,19 +45,19 @@ In version 0.4.9, we optimized the logic for target gateset selection, made infr
 * Test for Merit systems automation by @jordandsullivan in https://github.com/unitaryfoundation/ucc/pull/470
 * Simplified and optimized logic for target gateset selection.  by @jordandsullivan in https://github.com/unitaryfoundation/ucc/pull/492
 ### 🔄 Dependencies
-By @dependabot  
-* pytket (2.7.0 → 2.9.1) via [#456](https://github.com/unitaryfoundation/ucc/pull/456) + [#458](https://github.com/unitaryfoundation/ucc/pull/458)  
-* qbraid (0.9.7 → 0.9.8) via [#459](https://github.com/unitaryfoundation/ucc/pull/459)  
-* cirq-core (1.5.0 → 1.6.1) via [#457](https://github.com/unitaryfoundation/ucc/pull/457) + [#487](https://github.com/unitaryfoundation/ucc/pull/487)  
-* sphinxcontrib-bibtex (2.6.3 → 2.6.5) via [#472](https://github.com/unitaryfoundation/ucc/pull/472)  
-* pytest (8.3.5 → 8.4.1) via [#473](https://github.com/unitaryfoundation/ucc/pull/473)  
-* pytest-cov (6.1.1 → 6.2.1) via [#474](https://github.com/unitaryfoundation/ucc/pull/474)  
-* quimb (1.11.1 → 1.11.2) via [#475](https://github.com/unitaryfoundation/ucc/pull/475)  
-* ruff (0.11.7 → 0.12.10) via [#476](https://github.com/unitaryfoundation/ucc/pull/476) + [#483](https://github.com/unitaryfoundation/ucc/pull/483) + [#486](https://github.com/unitaryfoundation/ucc/pull/486) + [#494](https://github.com/unitaryfoundation/ucc/pull/494)  
-* actions/checkout (4 → 5) via [#481](https://github.com/unitaryfoundation/ucc/pull/481)  
-* actions/download-artifact (4 → 5) via [#482](https://github.com/unitaryfoundation/ucc/pull/482)  
-* pre-commit (4.2.0 → 4.3.0) via [#484](https://github.com/unitaryfoundation/ucc/pull/484)  
-* qiskit (2.1.1 → 2.1.2) via [#493](https://github.com/unitaryfoundation/ucc/pull/493)  
+By @dependabot
+* pytket (2.7.0 → 2.9.1) via [#456](https://github.com/unitaryfoundation/ucc/pull/456) + [#458](https://github.com/unitaryfoundation/ucc/pull/458)
+* qbraid (0.9.7 → 0.9.8) via [#459](https://github.com/unitaryfoundation/ucc/pull/459)
+* cirq-core (1.5.0 → 1.6.1) via [#457](https://github.com/unitaryfoundation/ucc/pull/457) + [#487](https://github.com/unitaryfoundation/ucc/pull/487)
+* sphinxcontrib-bibtex (2.6.3 → 2.6.5) via [#472](https://github.com/unitaryfoundation/ucc/pull/472)
+* pytest (8.3.5 → 8.4.1) via [#473](https://github.com/unitaryfoundation/ucc/pull/473)
+* pytest-cov (6.1.1 → 6.2.1) via [#474](https://github.com/unitaryfoundation/ucc/pull/474)
+* quimb (1.11.1 → 1.11.2) via [#475](https://github.com/unitaryfoundation/ucc/pull/475)
+* ruff (0.11.7 → 0.12.10) via [#476](https://github.com/unitaryfoundation/ucc/pull/476) + [#483](https://github.com/unitaryfoundation/ucc/pull/483) + [#486](https://github.com/unitaryfoundation/ucc/pull/486) + [#494](https://github.com/unitaryfoundation/ucc/pull/494)
+* actions/checkout (4 → 5) via [#481](https://github.com/unitaryfoundation/ucc/pull/481)
+* actions/download-artifact (4 → 5) via [#482](https://github.com/unitaryfoundation/ucc/pull/482)
+* pre-commit (4.2.0 → 4.3.0) via [#484](https://github.com/unitaryfoundation/ucc/pull/484)
+* qiskit (2.1.1 → 2.1.2) via [#493](https://github.com/unitaryfoundation/ucc/pull/493)
 
 
 **Full Changelog**: https://github.com/unitaryfoundation/ucc/compare/v0.4.8...0.4.9
