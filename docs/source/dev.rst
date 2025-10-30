@@ -22,9 +22,10 @@ To release a new version of ``ucc`` on GitHub, follow the steps below.
 2. **Update the CHANGELOG.md:**
     - Copy your draft release notes to the `CHANGELOG.md` file.
     
-3. **Commit Changes:**
+3. **Commit and Merge in Changes:**
     - Make sure you've committed the version bump to `pyproject.toml` and updates to `CHANGELOG.md`
     - Open a PR to get the changes reviewed.
+    - **Merge the PR after approval.**
 
 4. **Publish the New Release on GitHub:**
     - Navigate back to your Release draft from step 1.
