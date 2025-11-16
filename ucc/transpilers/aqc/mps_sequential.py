@@ -218,9 +218,7 @@ class Sequential:
                 )
             )
 
-            fidelity = np.abs(
-                np.vdot(disentangled_mps.to_dense(), zero_state)
-            )
+            fidelity = np.abs(np.vdot(disentangled_mps.to_dense(), zero_state))
 
             if fidelity >= self.max_fidelity_threshold:
                 # If the disentangled MPS is close enough to the zero state,
@@ -312,9 +310,7 @@ class Sequential:
             statevector, max_num_layers, 2**num_qubits
         )
 
-        fidelity = np.abs(
-            np.vdot(Statevector(circuit).data, statevector)
-        )
+        fidelity = np.abs(np.vdot(Statevector(circuit).data, statevector))
 
         logger.info(
             f"Fidelity: {fidelity:.4f}, "

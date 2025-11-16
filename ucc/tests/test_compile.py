@@ -283,9 +283,7 @@ def test_compile_with_mps_pass(N):
     )
 
     fidelity = np.abs(
-        np.vdot(
-            Statevector(circuit).data, Statevector(compiled_circuit).data
-        )
+        np.vdot(Statevector(circuit).data, Statevector(compiled_circuit).data)
     )
 
     assert np.abs(fidelity) > 0.9
@@ -570,9 +568,7 @@ def test_compile_trivial_state_with_mps_pass():
     )
 
     fidelity = np.abs(
-        np.vdot(
-            Statevector(circuit).data, Statevector(compiled_circuit).data
-        )
+        np.vdot(Statevector(circuit).data, Statevector(compiled_circuit).data)
     )
 
     assert compiled_circuit.count_ops().get("cx", 0) == 0
